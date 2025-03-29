@@ -1,18 +1,23 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { VideoType } from "../../types";
+import { CommentType, VideoType } from "../../types";
+
+interface CommentsState {
+  total_number_of_comments: number;
+  comments: CommentType[];
+}
 
 interface initialStateI {
   videos: null | VideoType[];
-  isLoading: boolean,
-  error: null | string,
-  comments: null | string
+  isLoading: boolean;
+  error: null | string;
+  comments: CommentsState;
 }
 
 const initialState: initialStateI = {
   isLoading: false,
   error: null,
   videos: null,
-  comments: null
+  comments: { total_number_of_comments: 0, comments: [] },
 };
 
 const productSlice = createSlice({
@@ -23,14 +28,17 @@ const productSlice = createSlice({
       state.videos = action.payload;
     },
     setIsLoading: (state, action) => {
-      state.isLoading = action.payload
+      state.isLoading = action.payload;
     },
     setError: (state, action) => {
-      state.error = action.payload
+      state.error = action.payload;
     },
     setComments: (state, action) => {
-      state.comments = action.payload
-    }
+      state.comments = {
+        total_number_of_comments: action.payload.total_number_of_comments,
+        comments: action.payload.comments,
+      };
+    },
   },
 });
 
