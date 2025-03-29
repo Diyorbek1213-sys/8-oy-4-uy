@@ -1,15 +1,24 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { YTService } from "../service/api.service";
-import { VideoType } from "../types";
-import { useDispatch } from "react-redux";
-import { setError, setIsLoading } from "../redux/slices/productSlice";
+import { CommentType, VideoType } from "../types";
+import { useDispatch, useSelector } from "react-redux";
+import { setComments, setError, setIsLoading } from "../redux/slices/productSlice";
+import { RootState } from "../redux/store";
+import Comments from "./Comments";
 
 const VideoDetails = () => {
   const { id } = useParams();
   const [video, setVideo] = useState<VideoType | null>(null);
   const dispatch = useDispatch();
   const [expand, setExpand] = useState(false);
+  const { comments } = useSelector(
+    (state: RootState) => state.videos
+  );
+  const { isLoading } = useSelector(
+    (state: RootState) => state.videos
+  );
+  console.log(comments)
   useEffect(() => {
     const getVideoDetails = async () => {
       if (id) {
@@ -17,6 +26,12 @@ const VideoDetails = () => {
         try {
           const data = await YTService.getVideoDetails(id);
           setVideo(data);
+          const getComments = await YTService.getVideoComments(id)
+
+          if (getComments) {
+            dispatch(setComments(getComments))
+            console.log('comments', getComments)
+          }
           console.log(data);
         } catch (error) {
           console.log(error);
@@ -49,7 +64,6 @@ const VideoDetails = () => {
         res.push(tt[i]);
       }
     }
-    console.log(res);
     return res.join(" ");
   };
 
@@ -83,9 +97,8 @@ const VideoDetails = () => {
         </div>
       </div>
       <div
-        className={`p-3 mt-5 rounded-xl bg-white/10 ${
-          expand ? "h-auto" : "h-[200px]"
-        } relative overflow-hidden`}
+        className={`p-3 mt-5 rounded-xl bg-white/10 ${expand ? "h-auto" : "h-[200px]"
+          } relative overflow-hidden`}
       >
         <div className="mb-1 font-semibold">
           <span>{ConvertViews(video?.number_of_views || 0)} viewed</span>
@@ -99,10 +112,20 @@ const VideoDetails = () => {
           }}
         ></p>
         {!expand && (
-          <div onClick={() =>setExpand(true)} className="absolute py-1 left-0 bottom-0 right-0 w-full bg-gradient-to-t from-[#1D202A] from-30% to-transparent text-center">
+          <div onClick={() => setExpand(true)} className="absolute py-1 left-0 bottom-0 right-0 w-full bg-gradient-to-t from-[#1D202A] from-30% to-transparent text-center">
             <i className="fa fa-chevron-down"></i>
           </div>
         )}
+      </div>
+      <div>
+        <h2 className="mt-5 font-bold text-2xl">{comments?.total_number_of_comments} Comments</h2>
+        <div>
+          {
+            isLoading ? <h2>Loading...</h2> : comments?.comments.length > 0 && comments?.comments.map((comment: CommentType) => {
+              return <Comments comment={comment} key={comment.id} />
+            })
+          }
+        </div>
       </div>
     </div>
   );

@@ -5,12 +5,14 @@ interface initialStateI {
   videos: null | VideoType[];
   isLoading: boolean,
   error: null | string,
+  comments: null | string
 }
 
 const initialState: initialStateI = {
   isLoading: false,
   error: null,
   videos: null,
+  comments: null
 };
 
 const productSlice = createSlice({
@@ -24,10 +26,13 @@ const productSlice = createSlice({
       state.isLoading = action.payload
     },
     setError: (state, action) => {
-      state.error= action.payload
+      state.error = action.payload
     },
+    setComments: (state, action) => {
+      state.comments = action.payload
+    }
   },
 });
 
-export const { setVideos, setError, setIsLoading } = productSlice.actions;
+export const { setVideos, setError, setIsLoading, setComments } = productSlice.actions;
 export default productSlice.reducer;
